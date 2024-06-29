@@ -1,14 +1,12 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using System.Web;
-using System.Web.Mvc;
+﻿using ExamPaperDistributionSystem.Models;
+using ExamPaperDistributionSystem.Services;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
-using ExamPaperDistributionSystem.Models;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web;
+using System.Web.Mvc;
 
 namespace ExamPaperDistributionSystem.Controllers
 {
@@ -17,11 +15,11 @@ namespace ExamPaperDistributionSystem.Controllers
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
-      //  private readonly UserService _userService;
+        private readonly UserService _userService;
 
         public AccountController()
         {
-            //_userService = new UserService();
+            _userService = new UserService();
         }
 
         public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager )
@@ -53,27 +51,25 @@ namespace ExamPaperDistributionSystem.Controllers
                 _userManager = value;
             }
         }
-
-        //
         // GET: /Account/Login
-        [AllowAnonymous]
-        public ActionResult Login(string returnUrl)
+        [HttpGet]
+        public ActionResult Login()
         {
-            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
+
         [HttpPost]
         public ActionResult Login(string username, string password)
         {
-           /* var user = _userService.Authenticate(username, password);
+            var user = _userService.Authenticate(username, password);
             if (user != null)
             {
                 Session["User"] = user;
-                return RedirectToAction("Index", user.Role.Name);
+                return RedirectToAction("Index", user.Role.Name); // Redirect to role-specific dashboard
             }
-*/
+
             ViewBag.Message = "Invalid credentials.";
-            return View("Login");
+            return View();
         }
         //
         // POST: /Account/Login
@@ -406,7 +402,8 @@ namespace ExamPaperDistributionSystem.Controllers
         public ActionResult LogOff()
         {
             AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
-            return RedirectToAction("Index", "Home");
+            Session.Clear();
+            return RedirectToAction("Login");
         }
 
         //
